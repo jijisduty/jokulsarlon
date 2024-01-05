@@ -1,6 +1,6 @@
 # jokulsarlon
 
-[jokulsarlon.vercel.app](jokulsarlon.vercel.app)
+[jokulsarlon.vercel.app](https://jokulsarlon.vercel.app/)
 
 Three.js for the 3D graphics capabilities.
 
