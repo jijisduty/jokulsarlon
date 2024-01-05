@@ -5,7 +5,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { Reflector } from "three/addons/objects/Reflector.js";
 //import vertexShader from "./shaders/vertex.glsl";
 
-console.log("update test");
+console.log("update test2***");
 
 // Start of the code
 THREE.ColorManagement.enabled = false;
@@ -28,9 +28,7 @@ uniform mat4 textureMatrix;
 
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
-			#include <logdepthbuf_vertex>
-
-		
+			#include <logdepthbuf_vertex>		
 
 		}
 `;
@@ -204,7 +202,7 @@ mirrorShader.vertexShader = vertexShader;
 mirrorShader.fragmentShader = fragmentShader;
 
 const dudvMap = new THREE.TextureLoader().load("waterdudv.jpg", function () {
-  tick();
+  //tick();
 });
 
 mirrorShader.uniforms.tDudv = { value: dudvMap };
