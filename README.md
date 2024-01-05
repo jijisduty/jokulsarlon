@@ -8,4 +8,4 @@ Blender for the 3D model.
 
 GLSL for the water shader.
 
-![jokul-png](https://github.com/jijisduty/jokulsarlon/assets/38539458/fc984214-2c23-47ae-8afe-8884b3c1683c)
+![jokul-smol](https://github.com/jijisduty/jokulsarlon/assets/38539458/ee0725f5-409b-45dd-a2fb-5ce0dc6789e4)
