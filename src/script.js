@@ -3,6 +3,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { Reflector } from "three/addons/objects/Reflector.js";
+//import vertexShader from "./shaders/vertex.glsl";
+
+//console.log(vertexShader);
 
 // Start of the code
 THREE.ColorManagement.enabled = false;
@@ -26,6 +29,8 @@ uniform mat4 textureMatrix;
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 
 			#include <logdepthbuf_vertex>
+
+		
 
 		}
 `;
@@ -64,7 +69,7 @@ const fragmentShader = `
        gl_FragColor = vec4( mix( base.rgb, color, 0.5 ), 1.0 );
 
        #include <tonemapping_fragment>
-   
+       
 
    }
 `;
@@ -101,8 +106,6 @@ loader.load(
     gltf.scenes;
     gltf.cameras;
     gltf.asset;
-
-    changePosition();
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -201,7 +204,7 @@ mirrorShader.vertexShader = vertexShader;
 mirrorShader.fragmentShader = fragmentShader;
 
 const dudvMap = new THREE.TextureLoader().load("waterdudv.jpg", function () {
-  animate();
+  tick();
 });
 
 mirrorShader.uniforms.tDudv = { value: dudvMap };
