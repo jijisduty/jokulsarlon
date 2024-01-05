@@ -5,7 +5,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { Reflector } from "three/addons/objects/Reflector.js";
 //import vertexShader from "./shaders/vertex.glsl";
 
-//console.log(vertexShader);
+console.log("update test");
 
 // Start of the code
 THREE.ColorManagement.enabled = false;
