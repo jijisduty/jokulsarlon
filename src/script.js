@@ -202,7 +202,7 @@ mirrorShader.vertexShader = vertexShader;
 mirrorShader.fragmentShader = fragmentShader;
 
 const dudvMap = new THREE.TextureLoader().load(
-  "public/static/images/waterdudv.jpg",
+  "https://pink-sunset.vercel.app/src/waterdudv.jpg",
   function () {
     //tick();
   }
