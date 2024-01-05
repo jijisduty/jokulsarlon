@@ -5,7 +5,7 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { Reflector } from "three/addons/objects/Reflector.js";
 //import vertexShader from "./shaders/vertex.glsl";
 
-console.log("****update test2***");
+console.log("22****update test2***");
 
 // Start of the code
 THREE.ColorManagement.enabled = false;
@@ -202,7 +202,7 @@ mirrorShader.vertexShader = vertexShader;
 mirrorShader.fragmentShader = fragmentShader;
 
 const dudvMap = new THREE.TextureLoader().load(
-  "public/waterdudv.jpg",
+  "public/static/images/waterdudv.jpg",
   function () {
     //tick();
   }
