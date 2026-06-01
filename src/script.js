@@ -192,6 +192,9 @@ controls.enableDamping = true;
 controls.enableZoom    = cameraParams.enableZoom;
 controls.rotateSpeed   = cameraParams.rotateSpeed;
 
+const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+if (isTouchDevice) controls.rotateSpeed = cameraParams.rotateSpeed * 2;
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Renderer
 // ─────────────────────────────────────────────────────────────────────────────
@@ -718,7 +721,7 @@ for (let i = 0; i < MAX_SNOW; i++) {
   let x, y, z;
   do {
     x = (Math.random() * 2 - 1) * SNOW_RADIUS;
-    y = (Math.random() * 2 - 1) * SNOW_RADIUS;
+    y = (Math.random() * 0.5 - 1) * SNOW_RADIUS;
     z = (Math.random() * 2 - 1) * SNOW_RADIUS;
   } while (x * x + y * y + z * z > SNOW_RADIUS * SNOW_RADIUS);
 
@@ -1448,11 +1451,16 @@ scene.add(groundMirror);
 const clock = new THREE.Clock();
 
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
+  const deltaTime   = clock.getDelta();
+  const elapsedTime = clock.elapsedTime;
+  // dt60 = 1.0 at 60 fps; all per-frame constants were tuned at 60 fps.
+  // Clamped to 3 frames to prevent a huge jump after a tab switch or stall.
+  const dt60 = Math.min(deltaTime * 165, 8);
 
-  mirrorShader.uniforms.time.value          += 0.503;
-  groundMirror.material.uniforms.time.value += 0.0503;
-  //waveSurface.material.uniforms.time.value  += 0.0503;   // animate DuDv ripple on demo disk
+  mirrorShader.uniforms.time.value          += 0.503  * dt60;
+  groundMirror.material.uniforms.time.value += 0.0503 * dt60;
+  //waveSurface.material.uniforms.time.value  += 0.0503 * dt60;
+  controls.dampingFactor = 1 - Math.pow(0.95, dt60);
   controls.update();
 
   // ── Orbit delta → turbulence ──────────────────────────────────────────────
@@ -1470,8 +1478,8 @@ const tick = () => {
   // Horizontal spin alone gives turbulence.y = 0; feed a fraction of XZ magnitude
   // as upward kick so spinning always lifts flakes off the water surface.
   const hMag = Math.sqrt(snowTurbulence.x * snowTurbulence.x + snowTurbulence.z * snowTurbulence.z);
-  snowTurbulence.y += hMag * 0.18;
-  snowTurbulence.multiplyScalar(snowParams.turbDecay);
+  snowTurbulence.y += hMag * 0.18 * dt60;
+  snowTurbulence.multiplyScalar(snowParams.turbDecay ** dt60);
 
   // ── Snowflake physics ─────────────────────────────────────────────────────
   const posAttr = snowGeometry.attributes.position;
@@ -1487,28 +1495,28 @@ const tick = () => {
     const sp  = snowParams.speedMult;
 
     // Spin turbulence — per-flake scale keeps them from clumping
-    vel.x += snowTurbulence.x * sc;
-    vel.y += snowTurbulence.y * sc;
-    vel.z += snowTurbulence.z * sc;
+    vel.x += snowTurbulence.x * sc * dt60;
+    vel.y += snowTurbulence.y * sc * dt60;
+    vel.z += snowTurbulence.z * sc * dt60;
 
     // Oscillation drift (unique phase per flake)
     const t = elapsedTime * 0.35 + snowPhases[i];
-    vel.x += Math.sin(t * 0.9 + snowPhases[i] * 1.3) * snowParams.oscillation * sp;
-    vel.z += Math.cos(t * 1.1 + snowPhases[i] * 0.7) * snowParams.oscillation * sp;
+    vel.x += Math.sin(t * 0.9 + snowPhases[i] * 1.3) * snowParams.oscillation * sp * dt60;
+    vel.z += Math.cos(t * 1.1 + snowPhases[i] * 0.7) * snowParams.oscillation * sp * dt60;
 
     // Brownian jitter — prevents convergence to the same attractor
-    vel.x += (Math.random() - 0.5) * snowParams.jitter * sp;
-    vel.z += (Math.random() - 0.5) * snowParams.jitter * sp;
+    vel.x += (Math.random() - 0.5) * snowParams.jitter * sp * dt60;
+    vel.z += (Math.random() - 0.5) * snowParams.jitter * sp * dt60;
 
     // Gravity
-    vel.y -= snowParams.gravity;
+    vel.y -= snowParams.gravity * dt60;
 
-    // Damping
-    vel.multiplyScalar(snowParams.damping);
+    // Damping — exponent keeps per-second decay rate constant across frame rates
+    vel.multiplyScalar(snowParams.damping ** dt60);
 
-    let nx = px + vel.x;
-    let ny = py + vel.y;
-    let nz = pz + vel.z;
+    let nx = px + vel.x * dt60;
+    let ny = py + vel.y * dt60;
+    let nz = pz + vel.z * dt60;
 
     // ── Spherical boundary ────────────────────────────────────────────────
     const dx = nx - SNOW_CENTER.x;
@@ -1533,9 +1541,9 @@ const tick = () => {
     // Flakes settle here and stay still until a spin disturbs them.
     if (ny < FLOOR_Y) {
       ny = FLOOR_Y;
-      if (vel.y < 0) vel.y = 0;  // absorb downward momentum, no bounce
-      vel.x *= 0.78;              // surface friction: lateral slide damps quickly
-      vel.z *= 0.78;
+      if (vel.y < 0) vel.y = 0;
+      vel.x *= 0.78 ** dt60;     // surface friction: lateral slide damps quickly
+      vel.z *= 0.78 ** dt60;
     }
 
     posAttr.setXYZ(i, nx, ny, nz);
